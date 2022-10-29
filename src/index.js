@@ -1,4 +1,4 @@
-import { fetch } from './js/fetch-images';
+import { fetch } from './js/fetch';
 
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 Notify.init({
@@ -33,6 +33,8 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const axios = require('axios').default;
+
+let gallery = new SimpleLightbox('.gallery a', {});
 
 const refs = {
   box: document.querySelector('.search-box'),
@@ -90,19 +92,28 @@ function painter(images) {
     refs.results.insertAdjacentHTML(
       'beforeend',
       `<a href="${image.largeImageURL}" class="search-results-card">
-    <img src="${image.previewURL}" alt="${image.tags}">
-    <ul class="search-results-stats">
-      <li><b>likes:</b> ${image.likes}</li>
-      <li><b>views:</b> ${image.views}</li>
-      <li><b>comments:</b> ${image.comments}</li>
-      <li><b>downloads:</b> ${image.downloads}</li>
-    </ul>
-    </a>`
+      <img src="${image.previewURL}" alt="${image.tags}">
+      <ul class="search-results-stats">
+        <li><b>likes:</b> ${image.likes}</li>
+        <li><b>views:</b> ${image.views}</li>
+        <li><b>comments:</b> ${image.comments}</li>
+        <li><b>downloads:</b> ${image.downloads}</li>
+      </ul>
+      </a>`
     );
-  });
-  let gallery = new SimpleLightbox('.gallery a', {
-    /* options */
   });
 
   gallery.refresh();
+  scroller();
+}
+
+function scroller() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 20,
+    behavior: 'smooth',
+  });
 }
