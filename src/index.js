@@ -49,14 +49,16 @@ refs.form.addEventListener('submit', submit);
 refs.more.addEventListener('click', load);
 refs.more.style.visibility = 'hidden';
 
-let page = 1;
+let page;
+let query;
 
 async function submit(e) {
   e.preventDefault();
   refs.results.innerHTML = '';
 
-  let query = refs.input.value;
+  query = refs.input.value;
   page = 1;
+
   let images = await fetch(query, page);
 
   if (images.hits.length === 0) {
@@ -74,7 +76,6 @@ async function submit(e) {
 async function load() {
   page = page + 1;
 
-  let query = refs.input.value;
   let images = await fetch(query, page);
 
   if (images.hits.length === 0) {
