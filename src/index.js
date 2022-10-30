@@ -40,7 +40,7 @@ const refs = {
   box: document.querySelector('.search-box'),
   form: document.querySelector('.search-form'),
   input: document.querySelector('.search-input'),
-  button: document.querySelector('.search-input'),
+  button: document.querySelector('.search-button'),
   results: document.querySelector('.search-results'),
   more: document.querySelector('.search-more-button'),
 };
@@ -51,13 +51,20 @@ refs.more.style.visibility = 'hidden';
 
 let page;
 let query;
+let totalPages;
 
 async function submit(e) {
   e.preventDefault();
-  refs.results.innerHTML = '';
 
   query = refs.input.value;
   page = 1;
+
+  if (query.trim() === '') {
+    Notify.failure('👻 Type your query please!');
+    return;
+  }
+
+  refs.results.innerHTML = '';
 
   let images = await fetch(query, page);
 
@@ -68,7 +75,13 @@ async function submit(e) {
 
   Notify.success(`👍 OK, we already found ${images.totalHits} images`);
 
+  totalPages = Math.trunc(images.totalHits / 40) + 1;
+
   painter(images.hits);
+
+  if (totalPages === page) {
+    return;
+  }
 
   refs.more.style.visibility = 'visible';
 }
@@ -78,14 +91,17 @@ async function load() {
 
   let images = await fetch(query, page);
 
-  if (images.hits.length === 0) {
-    Notify.failure('😱 Sorry, there are no more images matching your query...');
+  Notify.success('👍 OK, 40 more images was added in search-results area');
+
+  await painter(images.hits);
+
+  if (page === totalPages) {
+    Notify.failure(
+      "😵 We're sorry, but you've reached the end of search results..."
+    );
     refs.more.style.visibility = 'hidden';
     return;
   }
-  Notify.success('👍 OK, 20 more images was added in search-results area');
-
-  painter(images.hits);
 }
 
 function painter(images) {
@@ -105,16 +121,4 @@ function painter(images) {
   });
 
   gallery.refresh();
-  scroller();
-}
-
-function scroller() {
-  const { height: cardHeight } = document
-    .querySelector('.gallery')
-    .firstElementChild.getBoundingClientRect();
-
-  window.scrollBy({
-    top: cardHeight * 20,
-    behavior: 'smooth',
-  });
 }
